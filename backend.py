@@ -16,9 +16,12 @@ except ImportError:
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Define a directory for temporary downloads
-DOWNLOAD_DIR = Path.cwd() / "temp_video_downloads"
-DOWNLOAD_DIR.mkdir(exist_ok=True)
+# Define directories for downloads
+TEMP_DOWNLOAD_DIR = Path.cwd() / "temp_video_downloads"
+TEMP_DOWNLOAD_DIR.mkdir(exist_ok=True)
+
+PERMANENT_DOWNLOAD_DIR = Path.cwd() / "live_stream_recordings"
+PERMANENT_DOWNLOAD_DIR.mkdir(exist_ok=True)
 
 # --- Video Transcription Class (from video_transcriber.py) ---
 class VideoTranscriber:
@@ -104,15 +107,22 @@ class VideoTranscriber:
         return matches
 
 # --- YouTube Download Function (from youtube_channel_transcriber.py) ---
-def download_video(video_url, output_dir):
+def download_video(video_url, output_dir, cookies=None):
     logging.info(f"Starting download for URL: {video_url}")
     try:
         ydl_opts = {
             'outtmpl': str(output_dir / '%(id)s.%(ext)s'),
-            'format': 'best[height<=480]', # Lower quality for speed
+            'format': 'best', # Best quality for live streams
             'quiet': True,
             'no_warnings': True,
         }
+        
+        # Add cookies if provided (for member-only streams)
+        if cookies:
+            cookies_file = output_dir / 'cookies.txt'
+            cookies_file.write_text(cookies)
+            ydl_opts['cookiefile'] = str(cookies_file)
+            logging.info("Using cookies for authentication")
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
@@ -134,6 +144,43 @@ def health_check():
     """Health check endpoint for status monitoring"""
     return jsonify({"status": "healthy", "service": "YouTube Analysis Backend"}), 200
 
+@app.route('/download', methods=['POST'])
+def download_live_stream():
+    """Download a live stream or video and keep it permanently"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    video_url = data.get('video_url', '').strip()
+    cookies = data.get('cookies', '').strip()
+    channel_name = data.get('channel_name', 'unknown').strip()
+
+    # Input validation
+    if not video_url:
+        return jsonify({"error": "Missing 'video_url'"}), 400
+    
+    # Validate YouTube URL format
+    if not re.match(r'https?://(www\.)?youtube\.com/watch\?v=', video_url):
+        return jsonify({"error": "Invalid YouTube URL format"}), 400
+
+    logging.info(f"Received download request for {channel_name}: {video_url}")
+
+    try:
+        # Download to permanent directory
+        video_path = download_video(video_url, PERMANENT_DOWNLOAD_DIR, cookies)
+        if not video_path:
+            return jsonify({"error": "Failed to download video. Check if URL is valid and video is accessible."}), 500
+
+        return jsonify({
+            "message": f"Successfully downloaded live stream from {channel_name}",
+            "file_path": str(video_path),
+            "channel": channel_name
+        }), 200
+
+    except Exception as e:
+        logging.error(f"An error occurred during download: {e}")
+        return jsonify({"error": f"An internal error occurred: {str(e)}"}), 500
+
 @app.route('/analyze', methods=['POST'])
 def analyze_video():
     data = request.get_json()
@@ -142,6 +189,7 @@ def analyze_video():
 
     video_url = data.get('video_url', '').strip()
     keywords = data.get('keywords', [])
+    cookies = data.get('cookies', '').strip()
 
     # Input validation
     if not video_url:
@@ -162,8 +210,8 @@ def analyze_video():
 
     video_path = None
     try:
-        # 1. Download Video
-        video_path = download_video(video_url, DOWNLOAD_DIR)
+        # 1. Download Video (with cookies for member-only content)
+        video_path = download_video(video_url, TEMP_DOWNLOAD_DIR, cookies)
         if not video_path:
             return jsonify({"error": "Failed to download video. Check if URL is valid and video is accessible."}), 500
 

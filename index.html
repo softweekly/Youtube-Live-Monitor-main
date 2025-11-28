@@ -42,8 +42,11 @@
         <label>Verbose Logging</label>
       </div>
       <div class="input-group">
-        <label for="cookies">YouTube Cookies</label>
-        <input type="text" id="cookies" placeholder="Enter your YouTube cookies here">
+        <label for="cookies">YouTube Cookies (for Member/Subscriber-only streams)</label>
+        <textarea id="cookies" rows="4" placeholder="Paste your YouTube cookies here (Netscape format)&#10;Required for member-only or age-restricted live streams"></textarea>
+        <small style="color: #666; display: block; margin-top: 5px;">
+          Tip: Use a browser extension like "Get cookies.txt LOCALLY" to export your cookies
+        </small>
       </div>
     </div>
 
@@ -64,8 +67,12 @@
           <span id="obs-status" class="status-indicator">Not configured</span>
         </div>
         <div class="status-item">
-          <span class="status-label">Last Analysis:</span>
-          <span id="analysis-status" class="status-indicator">None</span>
+          <span class="status-label">Recording Status:</span>
+          <span id="analysis-status" class="status-indicator">Idle</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Downloads Saved:</span>
+          <span id="download-location" class="status-indicator">./live_stream_recordings/</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-# Quick Troubleshooting Guide
+pip install -r requirements.txt# Quick Troubleshooting Guide
 
 ## 🔴 Problem: Backend Server shows "Offline"
 

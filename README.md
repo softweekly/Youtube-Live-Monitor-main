@@ -68,11 +68,13 @@ Double-click: STOP_ALL_SERVICES.bat
 
 **YouTube Live Monitor** is a desktop application that:
 
-- 📺 **Monitors YouTube channels** for live streams
-- 🚀 **Auto-opens streams** when channels go live
-- 🎬 **Controls OBS** to start recording/streaming automatically
-- 🤖 **AI-powered analysis** using OpenAI Whisper for keyword detection
+- 📺 **Monitors YouTube channels** for live streams (checks every 15 seconds)
+- 💾 **Auto-downloads streams** when channels go live (saved to `live_stream_recordings/`)
+- 🔐 **Supports member-only streams** via cookie authentication
+- 🎬 **Controls OBS** to start recording/streaming automatically (optional)
+- 🤖 **AI-powered keyword detection** using OpenAI Whisper for transcription
 - 📊 **Real-time status** monitoring for all services
+- ⚡ **Instant recording** - starts downloading as soon as stream begins
 | **Combined Keyword** | Search channel videos | One-time analysis of existing videos |
 | **Whisper GUI** | Download & transcribe videos | Batch processing, offline transcription |
 
@@ -85,10 +87,25 @@ Double-click: STOP_ALL_SERVICES.bat
 1. **Add Channels**: Click "Add Channel", enter `@channelname` or full YouTube URL
 2. **Add Keywords**: Enter `keyword1, keyword2, keyword3` (comma-separated)
 3. **Set Priority Channel** (Optional): One channel checks faster
-4. **Configure OBS** (Optional): For automatic recording/streaming
-5. **Save Settings**
+4. **Add Cookies** (For Member-Only Streams): Paste your YouTube cookies
+5. **Configure OBS** (Optional): For automatic recording/streaming
+6. **Save Settings**
 
-### 2. OBS Setup (Optional - For Auto Recording/Streaming)
+### 2. Setup Cookies for Member-Only Streams
+
+**Why Cookies?** If you want to download member-only or subscriber-only live streams, you need to provide your YouTube session cookies.
+
+**How to Get Cookies:**
+1. Install a browser extension like "Get cookies.txt LOCALLY"
+2. Go to YouTube.com and make sure you're logged in
+3. Use the extension to export your cookies
+4. Copy the cookie text
+5. Paste it into the "YouTube Cookies" field in the app
+6. Save settings
+
+**Important:** Keep your cookies private! They give access to your YouTube account.
+
+### 3. OBS Setup (Optional - For Auto Recording/Streaming)
 
 1. Install OBS Studio and the WebSocket plugin
 2. In OBS: `Tools → WebSocket Server Settings`
@@ -99,7 +116,7 @@ Double-click: STOP_ALL_SERVICES.bat
    - Password: (your OBS password)
 5. Save and the app will show OBS connection status
 
-### 3. YouTube API Key (Optional - For Better Channel Detection)
+### 4. YouTube API Key (Optional - For Better Channel Detection)
 
 1. Visit [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a project and enable YouTube Data API v3
@@ -108,20 +125,25 @@ Double-click: STOP_ALL_SERVICES.bat
 
 ## 🎯 Example Usage
 
-**Monitor a gaming channel for specific game mentions:**
+**Monitor a gaming channel and auto-download member-only streams:**
 
 1. Launch: `START_MINIMAL_STACK.bat`
-2. Add channel: `@yourfavoritegamer`
-3. Add keywords: `minecraft, fortnite, call of duty`
-4. OBS Action: `Record` (if using OBS)
-5. Save settings
+2. Add your YouTube cookies (if member-only content)
+3. Add channel: `@yourfavoritegamer`
+4. Add keywords: `minecraft, fortnite, call of duty`
+5. OBS Action: `Record` (if using OBS)
+6. Save settings
 
 **What happens:**
 - ✅ App checks every 15 seconds for live streams
-- ✅ When channel goes live, stream opens automatically
+- ✅ **Downloads start immediately** when channel goes live
+- ✅ Videos saved to `live_stream_recordings/` folder
 - ✅ OBS starts recording (if configured)
 - ✅ Backend analyzes audio for your keywords
 - ✅ Keywords logged with timestamps
+
+**Where are my downloads?**
+All live stream recordings are saved to: `./live_stream_recordings/`
 
 ## 🔍 Status Monitoring
 
@@ -133,7 +155,8 @@ The app displays real-time status indicators:
 | 🔴 Backend: Offline | Server not running |
 | 🟢 OBS: Connected | Ready to record/stream |
 | 🟡 OBS: Not Configured | Settings needed |
-| ⏱️ Last Analysis | Most recent keyword check |
+| 📹 Recording Status | Current download/analysis activity |
+| 📁 Downloads Saved | Location of recorded streams |
 
 ## ❓ Troubleshooting
 

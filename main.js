@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const Store = require('electron-store');
+const Store = require('electron-store').default || require('electron-store');
 const fetch = require('node-fetch');
 const WebSocket = require('ws');
 
@@ -177,13 +177,52 @@ async function checkLiveStatus() {
   currentStream = { channelId: selectedChannel.id, videoId: selectedChannel.videoId, obsAction: selectedChannel.obsAction };
   store.set('currentLiveChannelId', selectedChannel.id);
   
-  // Trigger keyword analysis for the new stream
+  // Start downloading the live stream immediately
+  downloadLiveStream(selectedChannel, verboseLogging);
+  
+  // Trigger keyword analysis for the stream
   triggerKeywordAnalysis(selectedChannel, verboseLogging);
 
   if (selectedChannel.obsAction !== 'no-obs') {
     await startObsStreaming(selectedChannel.obsAction, verboseLogging);
   }
   lastTabAction = now;
+}
+
+async function downloadLiveStream(channel, verboseLogging) {
+  const videoUrl = `https://www.youtube.com/watch?v=${channel.videoId}`;
+  const cookies = store.get('cookies') || '';
+  
+  log(verboseLogging, `Starting live stream download for ${channel.displayName}: ${videoUrl}`);
+  
+  mainWindow.webContents.send('update-analysis-status', `Recording ${channel.displayName}...`);
+
+  try {
+    const response = await fetch('http://localhost:5001/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        video_url: videoUrl,
+        cookies: cookies,
+        channel_name: channel.displayName,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      log(verboseLogging, `Live stream download started: ${data.message}`);
+      mainWindow.webContents.send('update-analysis-status', `Recording ${channel.displayName} to ${data.file_path}`);
+    } else {
+      const errorData = await response.json();
+      log(verboseLogging, `Download failed: ${errorData.error}`);
+      mainWindow.webContents.send('update-analysis-status', `Download failed: ${errorData.error}`);
+    }
+  } catch (error) {
+    log(verboseLogging, `Error starting download: ${error.message}`);
+    mainWindow.webContents.send('update-analysis-status', `Download error: ${error.message}`);
+  }
 }
 
 async function triggerKeywordAnalysis(channel, verboseLogging) {
@@ -194,16 +233,17 @@ async function triggerKeywordAnalysis(channel, verboseLogging) {
 
   const videoUrl = `https://www.youtube.com/watch?v=${channel.videoId}`;
   const keywords = channel.keywords.split(',').map(k => k.trim()).filter(k => k);
+  const cookies = store.get('cookies') || '';
 
   if (keywords.length === 0) {
     log(verboseLogging, `Keyword field for ${channel.displayName} is present but contains no actual keywords, skipping analysis.`);
     return;
   }
   
-  log(verboseLogging, `Triggering keyword analysis for ${channel.displayName} on video ${videoUrl} with keywords: [${keywords.join(', ')}]`);
+  log(verboseLogging, `Triggering keyword analysis and download for ${channel.displayName} on video ${videoUrl} with keywords: [${keywords.join(', ')}]`);
   
   // Update UI with analysis status
-  mainWindow.webContents.send('update-analysis-status', `Analyzing ${channel.displayName}...`);
+  mainWindow.webContents.send('update-analysis-status', `Downloading and analyzing ${channel.displayName}...`);
 
   try {
     const response = await fetch('http://localhost:5001/analyze', {
@@ -214,6 +254,7 @@ async function triggerKeywordAnalysis(channel, verboseLogging) {
       body: JSON.stringify({
         video_url: videoUrl,
         keywords: keywords,
+        cookies: cookies,
       }),
     });
 

@@ -7,7 +7,10 @@ import yt_dlp
 import whisper
 from pathlib import Path
 from datetime import datetime, timedelta
-from moviepy.editor import VideoFileClip
+try:
+    from moviepy.editor import VideoFileClip
+except ImportError:
+    from moviepy import VideoFileClip
 
 # --- Setup ---
 app = Flask(__name__)

@@ -1,0 +1,19 @@
+# Python dependencies for YouTube Live Monitor backend
+# Install with: pip install -r requirements.txt
+
+# Web framework
+Flask==3.1.0
+
+# Video/Audio processing
+openai-whisper==20250625
+yt-dlp==2025.10.22
+moviepy==2.2.1
+
+# Required for Whisper and video processing
+numpy<2.3
+numba==0.61.2
+torch
+torchaudio
+
+# Utilities
+python-dotenv==1.2.1

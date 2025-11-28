@@ -1,61 +1,55 @@
-# YouTube Live Monitor Suite - Quick Start
+# YouTube Live Monitor - Quick Start
 
 ## 🚀 Fastest Way to Get Started
 
-### Step 1: Run Setup (One Time Only)
+### Prerequisites
+
+You need these installed first:
+- **Node.js** 22.x or later ([Download](https://nodejs.org/))
+- **Python** 3.12+ ([Download](https://www.python.org/downloads/))
+- **FFmpeg** ([Download](https://ffmpeg.org/download.html))
+
+### Step 1: Install Dependencies
+
+**Install Node.js packages:**
+```bash
+npm install
+```
+
+**Install Python packages:**
+```bash
+pip install -r requirements.txt
+```
+
+### Step 2: Launch the App
+
+#### 🎯 Recommended: Minimal Stack
 
 **Windows:**
-```
-Double-click: QUICK_SETUP.bat
-```
-
-**Linux/Mac:**
-```bash
-chmod +x *.sh
-# Check prerequisites manually: python3, node, npm, ffmpeg
-```
-
-### Step 2: Launch Services
-
-#### 🎯 Quick Stack Launch (Recommended)
-
-**Windows - Full Stack:**
-```
-Double-click: START_ALL_SERVICES.bat
-```
-Starts: Backend + Combined Keyword + Electron (all 3 services)
-
-**Windows - Minimal Stack:**
 ```
 Double-click: START_MINIMAL_STACK.bat
 ```
-Starts: Backend + Electron (essential services only)
-
-**Linux/Mac - Full Stack:**
-```bash
-./start-all-services.sh
-```
-
-**Linux/Mac - Minimal Stack:**
-```bash
-./start-minimal-stack.sh
-```
-
-#### 🔧 Individual Services (Advanced)
-
-**Windows:**
-- **`START_BACKEND_SERVER.bat`** - Analysis backend (port 5001)
-- **`START_ELECTRON_APP.bat`** - Main monitoring app
-- **`START_COMBINED_KEYWORD.bat`** - Web keyword search (port 5000)
-- **`START_WHISPER_GUI.bat`** - Video transcription GUI
 
 **Linux/Mac:**
 ```bash
-# Individual services (create wrapper scripts or run directly)
-python3 backend.py              # Backend server
-npm start                       # Electron app
-cd "Combined Keyword" && python3 app.py    # Web search
-python3 "Whisper downloads/youtube_gui.py" # GUI
+chmod +x start-minimal-stack.sh
+./start-minimal-stack.sh
+```
+
+This starts:
+- ✅ Backend Analysis Server (Port 5001)
+- ✅ Electron Desktop App
+
+#### 🔧 Individual Services (Advanced)
+
+**Start Backend Server:**
+```bash
+python backend.py
+```
+
+**Start Electron App:**
+```bash
+npm start
 ```
 
 #### 🛑 Stop All Services
@@ -68,81 +62,127 @@ Double-click: STOP_ALL_SERVICES.bat
 **Linux/Mac:**
 ```bash
 ./stop-all-services.sh
-    OR
-Press Ctrl+C in the terminal running the services
 ```
 
-## 📋 What Each Tool Does
+## 📋 What This App Does
 
-| Tool | Purpose | Best For |
-|------|---------|----------|
-| **Electron App** | Monitor channels for live streams | Real-time monitoring, OBS automation |
-| **Backend Server** | Analyze videos for keywords | Powers the Electron app |
+**YouTube Live Monitor** is a desktop application that:
+
+- 📺 **Monitors YouTube channels** for live streams
+- 🚀 **Auto-opens streams** when channels go live
+- 🎬 **Controls OBS** to start recording/streaming automatically
+- 🤖 **AI-powered analysis** using OpenAI Whisper for keyword detection
+- 📊 **Real-time status** monitoring for all services
 | **Combined Keyword** | Search channel videos | One-time analysis of existing videos |
 | **Whisper GUI** | Download & transcribe videos | Batch processing, offline transcription |
 
 ## ⚙️ Quick Configuration
 
-### Electron App
-1. **Add Channel**: Click "Add Channel", enter `@channelname`
-2. **Add Keywords**: Enter `keyword1, keyword2, keyword3`
-3. **Set OBS Action**: Choose Stream/Record if using OBS
-4. **Save**: Click "Save Settings"
+## ⚙️ Configuration
 
-### OBS Setup (Optional)
-1. Install OBS WebSocket plugin
-2. In OBS: Tools → WebSocket Server Settings
-3. Enable server, note port and password
-4. Enter in Electron app OBS Settings
+### 1. Configure the Electron App
 
-### Combined Keyword (One-Time Setup)
-1. Get API key: https://console.cloud.google.com/
-2. Enable YouTube Data API v3
-3. Copy key to `Combined Keyword\app.py` line 11
+1. **Add Channels**: Click "Add Channel", enter `@channelname` or full YouTube URL
+2. **Add Keywords**: Enter `keyword1, keyword2, keyword3` (comma-separated)
+3. **Set Priority Channel** (Optional): One channel checks faster
+4. **Configure OBS** (Optional): For automatic recording/streaming
+5. **Save Settings**
 
-## 🎯 Example Workflow
+### 2. OBS Setup (Optional - For Auto Recording/Streaming)
 
-**Monitor NASA for rocket launch mentions:**
-1. Start backend: `START_BACKEND_SERVER.bat`
-2. Start app: `START_ELECTRON_APP.bat`
-3. Add channel: `@NASA`
-4. Add keywords: `launch, rocket, countdown, liftoff`
-5. OBS Action: `Record`
-6. Save settings
+1. Install OBS Studio and the WebSocket plugin
+2. In OBS: `Tools → WebSocket Server Settings`
+3. Enable server, note the port (usually 4455) and password
+4. In the Electron app, click OBS settings and enter:
+   - Host: `localhost`
+   - Port: `4455`
+   - Password: (your OBS password)
+5. Save and the app will show OBS connection status
 
-Now when NASA goes live and mentions "launch" or "rocket", the app will:
-- Detect the live stream automatically
-- Start recording in OBS
-- Analyze the stream for your keywords
-- Log keyword matches with timestamps
+### 3. YouTube API Key (Optional - For Better Channel Detection)
 
-## 🔍 System Status
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable YouTube Data API v3
+3. Create an API key
+4. In the Electron app settings, paste your API key
 
-The Electron app shows real-time status:
-- **Backend Server**: ✓ Connected / ✗ Offline
-- **OBS Connection**: ✓ Connected / ✗ Not configured
-- **Last Analysis**: Timestamp of last keyword check
+## 🎯 Example Usage
 
-## ❓ Common Issues
+**Monitor a gaming channel for specific game mentions:**
 
-**Backend shows offline**: Make sure `START_BACKEND_SERVER.bat` is running
+1. Launch: `START_MINIMAL_STACK.bat`
+2. Add channel: `@yourfavoritegamer`
+3. Add keywords: `minecraft, fortnite, call of duty`
+4. OBS Action: `Record` (if using OBS)
+5. Save settings
 
-**Channel ID not found**: Try full URL: `https://youtube.com/@channelname`
+**What happens:**
+- ✅ App checks every 15 seconds for live streams
+- ✅ When channel goes live, stream opens automatically
+- ✅ OBS starts recording (if configured)
+- ✅ Backend analyzes audio for your keywords
+- ✅ Keywords logged with timestamps
 
-**OBS won't connect**: Install OBS WebSocket plugin and enable it
+## 🔍 Status Monitoring
 
-**API quota exceeded**: YouTube API has daily limits, wait 24 hours
+The app displays real-time status indicators:
 
-## 📖 Full Documentation
+| Indicator | Meaning |
+|-----------|---------|
+| 🟢 Backend: Online | Analysis server ready |
+| 🔴 Backend: Offline | Server not running |
+| 🟢 OBS: Connected | Ready to record/stream |
+| 🟡 OBS: Not Configured | Settings needed |
+| ⏱️ Last Analysis | Most recent keyword check |
 
-See **`SETUP_GUIDE.md`** for:
-- Detailed setup instructions
-- Advanced configuration
-- Troubleshooting guide
-- Performance tips
+## ❓ Troubleshooting
 
-See **`UI_TESTING_CHECKLIST.md`** to verify everything works.
+**Backend shows offline:**
+- Make sure `python backend.py` is running
+- Wait 15-20 seconds for Whisper model to load
+- Check `http://localhost:5001/health` in browser
+
+**Channel not detected:**
+- Verify channel handle (should be `@channelname`)
+- Add YouTube API key for better detection
+- Check if channel is actually live
+
+**OBS won't connect:**
+- Install OBS WebSocket plugin v5.x
+- Enable server in OBS settings
+- Verify host/port/password match
+
+**Module not found errors:**
+- Run `pip install -r requirements.txt`
+- Make sure Python 3.12+ is installed
+
+## 📖 Additional Documentation
+
+- **`GEMINI.md`** - Complete project architecture and overview
+- **`SETUP_GUIDE.md`** - Detailed installation and configuration
+- **`TROUBLESHOOTING.md`** - Common issues and solutions
+- **`ARCHITECTURE.md`** - Technical implementation details
+
+## 🧪 Testing
+
+Run the test suite to verify everything works:
+
+**Windows:**
+```
+RUN_TESTS.bat
+```
+
+**Manual Testing:**
+```bash
+# Test backend
+python backend.py
+# In another terminal:
+curl http://localhost:5001/health
+
+# Test Electron
+npm start
+```
 
 ## 🎉 You're Ready!
 
-Pick a tool above and start monitoring YouTube channels for your keywords!
+Start monitoring YouTube channels and never miss a live stream again!

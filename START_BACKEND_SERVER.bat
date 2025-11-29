@@ -13,8 +13,19 @@ echo.
 
 cd /d "%~dp0"
 
+REM Check if virtual environment exists
+if exist ".venv\Scripts\python.exe" (
+    echo Using virtual environment (.venv)
+    set PYTHON_CMD=.venv\Scripts\python.exe
+    set PIP_CMD=.venv\Scripts\pip.exe
+) else (
+    echo Using system Python
+    set PYTHON_CMD=python
+    set PIP_CMD=pip
+)
+
 REM Check if Python is available
-python --version >nul 2>&1
+%PYTHON_CMD% --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Python is not installed or not in PATH
     echo Please install Python 3.8 or higher
@@ -22,20 +33,9 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Install requirements if needed
-if not exist "requirements_backend.txt" (
-    echo Creating requirements file...
-    (
-        echo yt-dlp
-        echo openai-whisper
-        echo flask
-        echo moviepy
-    ) > requirements_backend.txt
-)
-
 echo Checking dependencies...
-pip install -q -r requirements_backend.txt
+%PIP_CMD% install -q -r requirements.txt
 
 echo.
 echo Starting backend server...
-python backend.py
+%PYTHON_CMD% backend.py

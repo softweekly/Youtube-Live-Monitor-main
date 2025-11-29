@@ -1,15 +1,41 @@
 # YouTube Live Monitor - Quick Start
 
-## 🚀 Fastest Way to Get Started
+## 🚀 ONE-CLICK STARTUP (Recommended)
 
-### Prerequisites
+### Windows
+```
+Double-click: QUICK_START.bat
+```
 
-You need these installed first:
+### Linux/Mac
+```bash
+chmod +x quick-start.sh
+./quick-start.sh
+```
+
+**What it does automatically:**
+- ✅ Creates Python virtual environment (if needed)
+- ✅ Installs all Node.js dependencies (if needed)
+- ✅ Installs all Python dependencies
+- ✅ Starts backend server
+- ✅ Starts Electron app
+
+**Just double-click and go!** 🎉
+
+---
+
+## 📋 Prerequisites
+
+You only need these installed first:
 - **Node.js** 22.x or later ([Download](https://nodejs.org/))
 - **Python** 3.12+ ([Download](https://www.python.org/downloads/))
 - **FFmpeg** ([Download](https://ffmpeg.org/download.html))
 
-### Step 1: Install Dependencies
+---
+
+## ⚙️ Manual Setup (Advanced Users)
+
+### Install Dependencies
 
 **Install Node.js packages:**
 ```bash
@@ -18,12 +44,15 @@ npm install
 
 **Install Python packages:**
 ```bash
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
 ### Step 2: Launch the App
 
-#### 🎯 Recommended: Minimal Stack
+#### 🎯 Quick Start Scripts
 
 **Windows:**
 ```
